@@ -69,12 +69,12 @@ def window_evidence(windows):
     return evidence
 
 
-def model_inputs(windows):
+def model_inputs(windows, *, require_replay=True):
     if len(windows.train) < 16:
         raise ValueError('至少需要 16 条在拟合期内成熟的记录')
     if not windows.calibration:
         raise ValueError('校准期没有可用结果')
-    if not windows.replay:
+    if require_replay and not windows.replay:
         raise ValueError('回放期没有可用结果')
     if not windows.live:
         raise ValueError('当班时段没有可用单据')

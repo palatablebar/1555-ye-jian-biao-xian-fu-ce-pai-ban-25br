@@ -162,6 +162,10 @@ function redraw(data) {
     byId('stamp').textContent = data.run_id;
     byId('capacity').value = data.capacity;
     byId('mode').value = data.mode;
+    const nightLimit = byId('night-limit');
+    if (nightLimit && data.missed_night_limit !== null && data.missed_night_limit !== undefined) {
+        nightLimit.value = data.missed_night_limit;
+    }
     byId('kpis').replaceChildren(...data.metrics.map(item => {
         const result = node('div',undefined,'kpi');
         result.append(node('dt',item.label),node('dd',item.value));
@@ -184,9 +188,19 @@ async function requestResult(path, options) {
 
 async function prepare() {
     try {
-        redraw(await requestResult('/overview'));
+        const nightInput = byId('night-limit');
+        const initial = {
+            capacity: byId('capacity').valueAsNumber,
+            strategy: byId('mode').value,
+            missed_night_limit: nightInput && nightInput.value !== '' ? nightInput.valueAsNumber : null,
+        };
+        redraw(await requestResult('/run', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(initial),
+        }));
         byId('apply').disabled = false;
-        appendStatus('本班已载入');
+        appendStatus('本班已按班长上限完成回放签发');
     } catch (error) {
         appendStatus(error.message,true);
         byId('retry').hidden = false;
@@ -208,7 +222,12 @@ byId('scenario').addEventListener('submit',async (event) => {
     submit.disabled = true;
     appendStatus('正在复算');
     try {
-        const data = {capacity:byId('capacity').valueAsNumber,strategy:byId('mode').value};
+        const nightLimit = byId('night-limit');
+        const data = {
+            capacity:byId('capacity').valueAsNumber,
+            strategy:byId('mode').value,
+            missed_night_limit: nightLimit && nightLimit.value !== '' ? nightLimit.valueAsNumber : null,
+        };
         const result = await requestResult('/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...currentBatch,...data})});
         redraw(result);
         appendStatus('处置方案已更新');
@@ -241,8 +260,10 @@ byId('batch-file').addEventListener('change',async (event) => {
         if (file.size > 1450000) throw new Error('请导入小于 1.45 MB 的单据文件');
         const incoming = JSON.parse(await file.text());
         if (!incoming || !Array.isArray(incoming.records)) throw new Error('文件须包含 records 数组');
+        const nightInput = byId('night-limit');
         const custom = {records:incoming.records,as_of:incoming.as_of ?? 96};
-        const setting = {capacity:ledger?.capacity ?? 12,strategy:ledger?.mode ?? 'balanced'};
+        const setting = {capacity:ledger?.capacity ?? 12,strategy:ledger?.mode ?? 'balanced',
+            missed_night_limit: nightInput && nightInput.value !== '' ? nightInput.valueAsNumber : null};
         const data = await requestResult('/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...custom,...setting})});
         currentBatch = custom;
         byId('source-label').textContent = file.name;

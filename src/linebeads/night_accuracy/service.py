@@ -108,3 +108,9 @@ def boundary_diagnostics(checks, threshold):
     return {'临界判断':'反光衰减','实绩超线':actual_cases,'估计超线':predicted_cases,
             '额外复测':len(over),'漏查':len(under),'漏查偏差中位':median(under) if under else None,
             '额外复测偏差中位':median(over) if over else None}
+
+
+# Re-exported so callers can discover the night-level waiver workflow beside
+# the older point-level replay diagnostics.
+from .waiver import *  # noqa: E402,F401,F403
+from .waiver import WaiverIssuanceRegister  # noqa: E402,F401

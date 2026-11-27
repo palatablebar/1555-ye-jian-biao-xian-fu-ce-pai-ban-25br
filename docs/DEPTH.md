@@ -16,6 +16,7 @@ AI/ML · 传统ML · 中型
 | M6 | 季节分组 | 差异定位和外推审查 | `src/linebeads/seasonal_mix/service.py` | `tests/test_seasonal_mix.py` |
 | M7 | 复测工位 | 硬规则与额度分配 | `src/linebeads/retrocheck_slots/service.py` | `tests/test_retrocheck_slots.py` |
 | M8 | 标线留证 | 单据及额度证据 | `src/linebeads/marking_evidence/service.py` | `tests/test_marking_evidence.py` |
+| M9 | 免测名单 | 校准 cutoff、逐夜回放、签发幂等 | `src/linebeads/night_waiver/service.py` | 夜测回放与工作台接口 |
 
 ## 深度登记
 
@@ -30,3 +31,5 @@ AI/ML · 传统ML · 中型
 | TRAP-44 | 校准样本不足 | 分派前转人工判读并保留原因 | `src/linebeads/night_accuracy/service.py` | `tests/test_night_accuracy.py::test_empty_calibration_requires_review` |
 | TRAP-53 | 单条推断与混批 | 复用冻结参数，各条估计完全一致 | `src/linebeads/bead_kernel/service.py` | `tests/test_bead_kernel.py::test_input_batch_invariance` |
 | TRAP-54 | 特征版本与模型不配对 | 拒绝继续推断并要求重拟合 | `src/linebeads/bead_kernel/service.py` | `tests/test_bead_kernel.py::test_mismatched_model_input_version_fails` |
+| TRAP-61 | 同夜多张免测单失败 | 夜只计一次漏判，未回与超线都计入 | `src/linebeads/night_waiver/service.py` | 夜测回放免测名单 |
+| TRAP-62 | 同批换序重跑 | 排序单据/夜次并使用顺序无关哈希，凭证不变 | `src/linebeads/night_waiver/service.py` | 工作台换序测试 |

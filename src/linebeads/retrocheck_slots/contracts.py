@@ -52,3 +52,4 @@ class Plan:
     capacity: int
     balance: int
     used_by_group: tuple[tuple[str, int], ...]
+    waiver_keys: tuple[str, ...] = ()

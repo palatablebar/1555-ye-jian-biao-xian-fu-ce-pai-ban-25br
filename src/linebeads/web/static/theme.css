@@ -85,6 +85,7 @@ tr:hover td { background: var(--wash); }
 .state { white-space: nowrap; padding: 2px 5px; border: 1px solid var(--line); border-radius: min(4px, var(--radius)); color: var(--quiet); }
 .state[data-state=已分派] { color: var(--accent); border-color: var(--accent); }
 .state[data-state=暂停] { color: var(--hold-color, #ad4a38); border-color: currentColor; }
+.state[data-state=免测] { color: #2f7d4f; border-color: currentColor; background: rgba(47,125,79,.08); }
 .detail-note { margin: 0 var(--pad) 10px; }
 .depots .record-fields { display: grid; grid-template-columns: max-content minmax(0, 1fr); padding: 3px var(--pad) 9px; gap: 11px 12px; margin: 9px 0 0; }
 .record-fields dt { color: var(--quiet); }

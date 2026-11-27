@@ -1,5 +1,6 @@
 from .operating_ledger import operating_ledger
 from collections import Counter, defaultdict
+from dataclasses import replace
 from math import exp, isfinite
 
 from .contracts import RuleNotice, Job, Plan, Policy, RISK_CUTOFF
@@ -108,8 +109,48 @@ def allocate(assessments, attention, policy):
     return Plan(tuple(resolved), policy.capacity, remaining, tuple(sorted(used.items())))
 
 
-def plan_jobs(assessments, attention, capacity, mode='balanced'):
-    return allocate(assessments, frozenset(attention), Policy.select(capacity, mode))
+def apply_waivers(plan, waiver_keys=()):
+    """Mark signed no-retest tickets as outside station allocation.
+
+    Recomputing used quota/balance means waiving an already admitted ticket
+    releases its station units instead of leaving a stale ledger entry.
+    """
+    signed = frozenset(map(str, waiver_keys or ()))
+    if not signed:
+        return plan
+    jobs = tuple(
+        replace(job, cost=0, state='免测', reason='WAIVER_SIGNED',
+                summary='本班免复测名单已签发，退出工位分配')
+        if job.key in signed else job
+        for job in plan.jobs
+    )
+    used = Counter()
+    for job in jobs:
+        if job.state == '已分派':
+            used[job.cohort] += job.cost
+    used_total = sum(used.values())
+    if used_total > plan.capacity:
+        raise ArithmeticError('免测调整后的工位用量超过额度')
+    return replace(
+        plan,
+        jobs=jobs,
+        balance=plan.capacity - used_total,
+        used_by_group=tuple(sorted(used.items())),
+        waiver_keys=tuple(sorted(signed)),
+    )
+
+
+def plan_jobs(assessments, attention, capacity, mode='balanced', waiver_keys=(),
+              exempt_keys=None, signed_keys=None, exemptions=None, **_options):
+    signed = waiver_keys
+    if exempt_keys is not None:
+        signed = exempt_keys
+    if signed_keys is not None:
+        signed = signed_keys
+    if exemptions is not None and not signed:
+        signed = getattr(exemptions, 'waiver_keys', exemptions)
+    plan = allocate(assessments, frozenset(attention), Policy.select(capacity, mode))
+    return apply_waivers(plan, signed)
 
 
 def action_evidence(plan):

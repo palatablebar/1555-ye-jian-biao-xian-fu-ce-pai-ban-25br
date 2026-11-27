@@ -39,9 +39,10 @@
       <form id="scenario" class="scenario">
         <div class="scenario-label"><strong>{{ display.action }}</strong><span>{{ display.resource }}</span></div>
         <label for="capacity">额度</label><input type="number" id="capacity" min="1" max="60" step="1" value="12" required>
+        <label for="night-limit">漏判夜上限</label><input type="number" id="night-limit" min="0" max="1" step="0.01" value="0.1" title="漏判夜占比上限，0 表示任一漏判夜即不签发">
         <label for="mode" class="sr-only">派单策略</label>
         <select id="mode"><option value="balanced">分区均衡</option><option value="focus">集中复核</option></select>
-        <button type="submit" id="apply" disabled>复算安排</button>
+        <button type="submit" id="apply" disabled>复算并签发免测名单</button>
       </form>
       <dl class="kpis" id="kpis" aria-label="本班摘要"></dl>
       <div class="desk-grid">
@@ -54,7 +55,7 @@
   <div class="filters">
     <label for="filter">查单</label><input type="search" id="filter" placeholder="单号、作业区、原因">
     <label for="status-filter" class="sr-only">处置状态</label>
-    <select id="status-filter"><option value="">全部处置</option><option>已分派</option><option>候补</option><option>暂停</option><option>人工判读</option><option>观察</option></select>
+    <select id="status-filter"><option value="">全部处置</option><option>已分派</option><option>候补</option><option>暂停</option><option>人工判读</option><option>免测</option><option>观察</option></select>
   </div>
   <div id="work-rows" class="table-scroll"></div>
 </section>

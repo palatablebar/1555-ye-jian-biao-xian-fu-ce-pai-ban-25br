@@ -103,3 +103,12 @@ def intervention_summary(rows):
     return [{'单项安排': key, '可比较单量': attempts, '超出拟合域': outlier,
              '总用量': units, '平均预测变化': round(delta/attempts,4)}
             for key,(attempts,outlier,units,delta) in sorted(actions.items())]
+
+
+# Waiver signing is audited with the rest of the shift evidence.
+from ..night_waiver.service import (  # noqa: E402,F401
+    WaiverIssuanceRegister,
+    sign_waiver_roster,
+    waiver_fingerprint,
+)
+from ..night_waiver.contracts import WaiverRoster, WaiverRule  # noqa: E402,F401
